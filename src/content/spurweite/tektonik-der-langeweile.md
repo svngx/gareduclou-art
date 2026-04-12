@@ -1,5 +1,5 @@
 ---
-id: tektonik-der-langeweile
+slug: tektonik-der-langeweile
 register: spurweite
 datum: 2026-04-12
 title:

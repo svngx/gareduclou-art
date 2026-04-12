@@ -12,7 +12,7 @@ const medienSchema = z.object({
 });
 
 const stueckSchema = z.object({
-  id: z.string(),
+  slug: z.string(),
   register: z.enum(['spurweite', 'passage', 'ankunft']),
   datum: z.coerce.date(),
   title: z.object({
