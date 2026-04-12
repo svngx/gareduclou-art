@@ -1,0 +1,206 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+// Alle Stücke laden
+const spurweite = await getCollection('spurweite');
+const passage = await getCollection('passage');
+const ankunft = await getCollection('ankunft');
+const alle = [...spurweite, ...passage, ...ankunft];
+
+// Stück über ID finden
+const { id } = Astro.params;
+const stueck = alle.find(s => s.data.id === id);
+if (!stueck) return Astro.redirect('/');
+
+// Inhalt rendern
+const { Content } = await stueck.render();
+
+// Bezüge auflösen (bidirektional)
+const bezugIds = new Set(stueck.data.bezuege);
+for (const s of alle) {
+  if (s.data.bezuege.includes(stueck.data.id)) {
+    bezugIds.add(s.data.id);
+  }
+}
+bezugIds.delete(stueck.data.id);
+const bezuege = alle.filter(s => bezugIds.has(s.data.id));
+
+// Register-Farbe
+const col: Record<string, string> = {
+  spurweite: 'var(--spurweite)',
+  passage: 'var(--passage)',
+  ankunft: 'var(--ankunft)',
+};
+const rl: Record<string, string> = {
+  spurweite: 'spur||weite',
+  passage: '/passage/',
+  ankunft: 'an//kunft',
+};
+
+export async function getStaticPaths() {
+  const spurweite = await getCollection('spurweite');
+  const passage = await getCollection('passage');
+  const ankunft = await getCollection('ankunft');
+  return [...spurweite, ...passage, ...ankunft].map(s => ({
+    params: { id: s.data.id },
+  }));
+}
+---
+<Base title={`${stueck.data.title.de} — Gare du Clou`}>
+  <div class="stueck-page">
+    <nav class="top-bar">
+      <a href="/" class="back">← Rhizom</a>
+      <span class="register-badge" style={`color: ${col[stueck.data.register]}`}>
+        {rl[stueck.data.register]}
+      </span>
+    </nav>
+
+    <article class="inhalt">
+      <h1>{stueck.data.title.de}</h1>
+      {stueck.data.title.en && (
+        <p class="en-title">{stueck.data.title.en}</p>
+      )}
+
+      <div class="schichten-toggle">
+        {stueck.data.schichten.map(s => (
+          <button class="schicht-btn" data-schicht={s}>{s}</button>
+        ))}
+      </div>
+
+      <div class="body-content">
+        <Content />
+      </div>
+    </article>
+
+    {bezuege.length > 0 && (
+      <aside class="bezuege-section">
+        <h3 class="bezuege-title">Bezüge</h3>
+        {bezuege.map(b => (
+          <a href={`/${b.data.id}`} class="bezug-link">
+            <span class="bezug-dot" style={`background: ${col[b.data.register]}`}></span>
+            <span class="bezug-name">{b.data.title.de}</span>
+            <span class="bezug-reg">{rl[b.data.register]}</span>
+          </a>
+        ))}
+      </aside>
+    )}
+  </div>
+</Base>
+
+<style>
+  .stueck-page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 60px 24px 80px 24px;
+  }
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+  .back {
+    font-family: var(--font-system);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .back:hover { color: var(--text-secondary); }
+  .register-badge {
+    font-family: var(--font-system);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+  }
+  h1 {
+    font-family: var(--font-inhalt);
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .en-title {
+    font-family: var(--font-inhalt);
+    font-size: 15px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+  .schichten-toggle {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .schicht-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 3px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: var(--font-system);
+    font-size: 11px;
+    text-transform: capitalize;
+  }
+  .schicht-btn:hover,
+  .schicht-btn.active {
+    border-color: #555;
+    color: var(--text-primary);
+    background: var(--surface);
+  }
+  .body-content {
+    font-family: var(--font-inhalt);
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--text-primary);
+  }
+  .body-content :global(p) {
+    margin-bottom: 1em;
+  }
+  .body-content :global(strong) {
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .bezuege-section {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .bezuege-title {
+    font-family: var(--font-system);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+    font-weight: 400;
+  }
+  .bezug-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    margin-bottom: 6px;
+    transition: border-color 0.15s;
+  }
+  .bezug-link:hover { border-color: #555; }
+  .bezug-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .bezug-name {
+    font-family: var(--font-inhalt);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .bezug-reg {
+    font-family: var(--font-system);
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+</style>

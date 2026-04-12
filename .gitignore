@@ -1,0 +1,18 @@
+# Astro
+dist/
+.astro/
+
+# Node
+node_modules/
+
+# Vercel
+.vercel/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
+*.swo
