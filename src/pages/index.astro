@@ -10,7 +10,7 @@ const alleStuecke = [...spurweite, ...passage, ...ankunft];
 
 // Knoten-Daten für das Rhizom-Canvas aufbereiten
 const knoten = alleStuecke.map(s => ({
-  id: s.data.slug,
+  id: s.data.pfad,
   register: s.data.register,
   de: s.data.title.de,
   en: s.data.title.en || s.data.title.de,

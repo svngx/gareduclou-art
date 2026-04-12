@@ -1,5 +1,5 @@
 ---
-slug: aufprall-einer-these
+pfad: aufprall-einer-these
 register: ankunft
 datum: 2026-04-12
 title:

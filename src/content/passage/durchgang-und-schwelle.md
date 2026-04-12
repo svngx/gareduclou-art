@@ -1,5 +1,5 @@
 ---
-slug: durchgang-und-schwelle
+pfad: durchgang-und-schwelle
 register: passage
 datum: 2026-04-12
 title:

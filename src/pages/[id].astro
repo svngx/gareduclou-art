@@ -10,7 +10,7 @@ const alle = [...spurweite, ...passage, ...ankunft];
 
 // Stück über ID finden
 const { id } = Astro.params;
-const stueck = alle.find(s => s.data.slug === id);
+const stueck = alle.find(s => s.data.pfad === id);
 if (!stueck) return Astro.redirect('/');
 
 // Inhalt rendern
@@ -20,11 +20,11 @@ const { Content } = await stueck.render();
 const bezugIds = new Set(stueck.data.bezuege);
 for (const s of alle) {
   if (s.data.bezuege.includes(stueck.data.slug)) {
-    bezugIds.add(s.data.slug);
+    bezugIds.add(s.data.pfad);
   }
 }
 bezugIds.delete(stueck.data.slug);
-const bezuege = alle.filter(s => bezugIds.has(s.data.slug));
+const bezuege = alle.filter(s => bezugIds.has(s.data.pfad));
 
 // Register-Farbe
 const col: Record<string, string> = {
@@ -43,7 +43,7 @@ export async function getStaticPaths() {
   const passage = await getCollection('passage');
   const ankunft = await getCollection('ankunft');
   return [...spurweite, ...passage, ...ankunft].map(s => ({
-    params: { id: s.data.slug },
+    params: { id: s.data.pfad },
   }));
 }
 ---
