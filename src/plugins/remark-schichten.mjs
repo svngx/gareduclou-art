@@ -1,10 +1,10 @@
 // ── Remark-Plugin: Schichten-Blöcke ──
 // Erkennt :::kern, :::annotation, :::werkstatt, :::quellen
-// und wandelt sie in <section data-schicht="kern"> etc.
+// Robust: funktioniert auch wenn :::marker und Text im selben Absatz landen.
 
 const SCHICHTEN = ['kern', 'annotation', 'werkstatt', 'quellen'];
-const OPEN_RE = /^:::(\w+)\s*$/;
-const CLOSE_RE = /^:::\s*$/;
+const OPEN_RE = /^:::(\w+)\s*/;
+const CLOSE_RE = /\s*:::\s*$/;
 
 export default function remarkSchichten() {
   return (tree) => {
@@ -13,31 +13,53 @@ export default function remarkSchichten() {
     let currentSchicht = null;
 
     for (const node of tree.children) {
-      // Prüfe ob dieser Knoten ein :::schicht Öffner oder ::: Schließer ist
       const text = getPlainText(node);
 
       if (!currentSchicht) {
-        // Außerhalb eines Blocks — suche Öffner
+        // Suche Öffner
         const match = text.match(OPEN_RE);
         if (match && SCHICHTEN.includes(match[1])) {
           currentSchicht = match[1];
           buffer = [];
+
+          // Prüfe: Schließer im selben Absatz? (:::kern Text :::)
+          if (CLOSE_RE.test(text)) {
+            const inner = text.slice(match[0].length).replace(/\s*:::\s*$/, '').trim();
+            if (inner) {
+              newChildren.push({
+                type: 'html',
+                value: `<section data-schicht="${currentSchicht}" class="schicht schicht--${currentSchicht}">`,
+              });
+              newChildren.push(makeParagraph(inner));
+              newChildren.push({ type: 'html', value: '</section>' });
+            }
+            currentSchicht = null;
+            continue;
+          }
+
+          // Rest des Absatzes nach :::marker als Inhalt behalten
+          const rest = text.slice(match[0].length).trim();
+          if (rest) {
+            buffer.push(makeParagraph(rest));
+          }
         } else {
           newChildren.push(node);
         }
       } else {
-        // Innerhalb eines Blocks — suche Schließer
-        if (CLOSE_RE.test(text) && text.trim() === ':::') {
-          // Block abschließen → HTML-Wrapper
-          newChildren.push({
-            type: 'html',
-            value: `<section data-schicht="${currentSchicht}" class="schicht schicht--${currentSchicht}">`,
-          });
-          newChildren.push(...buffer);
-          newChildren.push({
-            type: 'html',
-            value: '</section>',
-          });
+        // Innerhalb eines Blocks
+        const closeMatch = text.match(CLOSE_RE);
+        const isOnlyClose = text.trim() === ':::';
+
+        if (isOnlyClose) {
+          // Reiner Schließer → Block abschließen
+          flush(newChildren, currentSchicht, buffer);
+          currentSchicht = null;
+          buffer = [];
+        } else if (closeMatch) {
+          // Schließer am Ende eines Absatzes mit Text davor
+          const before = text.replace(CLOSE_RE, '').trim();
+          if (before) buffer.push(makeParagraph(before));
+          flush(newChildren, currentSchicht, buffer);
           currentSchicht = null;
           buffer = [];
         } else {
@@ -46,20 +68,28 @@ export default function remarkSchichten() {
       }
     }
 
-    // Falls ein Block nicht geschlossen wurde — Inhalt trotzdem ausgeben
+    // Ungeschlossener Block → trotzdem ausgeben
     if (currentSchicht && buffer.length) {
-      newChildren.push({
-        type: 'html',
-        value: `<section data-schicht="${currentSchicht}" class="schicht schicht--${currentSchicht}">`,
-      });
-      newChildren.push(...buffer);
-      newChildren.push({
-        type: 'html',
-        value: '</section>',
-      });
+      flush(newChildren, currentSchicht, buffer);
     }
 
     tree.children = newChildren;
+  };
+}
+
+function flush(target, schicht, buffer) {
+  target.push({
+    type: 'html',
+    value: `<section data-schicht="${schicht}" class="schicht schicht--${schicht}">`,
+  });
+  target.push(...buffer);
+  target.push({ type: 'html', value: '</section>' });
+}
+
+function makeParagraph(text) {
+  return {
+    type: 'paragraph',
+    children: [{ type: 'text', value: text }],
   };
 }
 

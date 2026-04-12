@@ -17,13 +17,17 @@ medien: []
 ---
 
 :::kern
+
 Eine These ist kein Satz, der steht. Sie ist ein Einschlag — etwas, das auftrifft und den Boden verändert, auf den es fällt. Der Aufprall erzeugt Risse, und in diesen Rissen wird sichtbar, was vorher tragend schien.
 
 Das Register an//kunft sammelt solche Einschläge. Nicht als Ergebnisse, sondern als Ereignisse.
+
 :::
 
 :::quellen
+
 Alain Badiou, *L'être et l'événement* (1988): Das Ereignis ist das, was nicht aus der Situation ableitbar ist, aber sie rückwirkend neu organisiert.
 
 Jacques Rancière, *Le maître ignorant* (1987): Die These der Gleichheit der Intelligenzen ist keine Wahrheit, die bewiesen wird — sie ist eine Voraussetzung, die sich im Vollzug bewährt.
+
 :::
