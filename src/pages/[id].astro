@@ -19,11 +19,11 @@ const { Content } = await stueck.render();
 // Bezüge auflösen (bidirektional)
 const bezugIds = new Set(stueck.data.bezuege);
 for (const s of alle) {
-  if (s.data.bezuege.includes(stueck.data.slug)) {
+  if (s.data.bezuege.includes(stueck.data.pfad)) {
     bezugIds.add(s.data.pfad);
   }
 }
-bezugIds.delete(stueck.data.slug);
+bezugIds.delete(stueck.data.pfad);
 const bezuege = alle.filter(s => bezugIds.has(s.data.pfad));
 
 // Register-Farbe
@@ -77,7 +77,7 @@ export async function getStaticPaths() {
       <aside class="bezuege-section">
         <h3 class="bezuege-title">Bezüge</h3>
         {bezuege.map(b => (
-          <a href={`/${b.data.slug}`} class="bezug-link">
+          <a href={`/${b.data.pfad}`} class="bezug-link">
             <span class="bezug-dot" style={`background: ${col[b.data.register]}`}></span>
             <span class="bezug-name">{b.data.title.de}</span>
             <span class="bezug-reg">{rl[b.data.register]}</span>
