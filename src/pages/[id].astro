@@ -86,6 +86,46 @@ export async function getStaticPaths() {
       </aside>
     )}
   </div>
+
+  <!-- Schichten-Toggle -->
+  <script is:inline>
+  (function() {
+    var btns = document.querySelectorAll('.schicht-btn');
+    var sections = document.querySelectorAll('[data-schicht]');
+
+    // Kern ist immer aktiv
+    var active = { kern: true };
+
+    function update() {
+      btns.forEach(function(b) {
+        var s = b.getAttribute('data-schicht');
+        if (active[s]) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+      sections.forEach(function(sec) {
+        var s = sec.getAttribute('data-schicht');
+        if (active[s]) {
+          sec.style.display = '';
+          sec.style.opacity = '1';
+        } else {
+          sec.style.display = 'none';
+        }
+      });
+    }
+
+    btns.forEach(function(b) {
+      b.addEventListener('click', function() {
+        var s = b.getAttribute('data-schicht');
+        if (s === 'kern') return; // Kern bleibt immer an
+        active[s] = !active[s];
+        update();
+      });
+    });
+
+    // Initial: nur Kern sichtbar
+    update();
+  })();
+  </script>
 </Base>
 
 <style>
@@ -160,6 +200,58 @@ export async function getStaticPaths() {
   .body-content :global(strong) {
     font-weight: 600;
     color: var(--accent);
+  }
+  /* Schicht-Sections */
+  .body-content :global(.schicht) {
+    border-left: 2px solid #444;
+    padding-left: 14px;
+    margin-bottom: 20px;
+  }
+  .body-content :global(.schicht--kern) {
+    border-left-color: var(--accent);
+  }
+  .body-content :global(.schicht--annotation) {
+    border-left-color: #8a7f65;
+  }
+  .body-content :global(.schicht--annotation)::before {
+    content: '\00B6 Annotation';
+    display: block;
+    font-family: var(--font-system);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8a7f65;
+    margin-bottom: 8px;
+  }
+  .body-content :global(.schicht--werkstatt) {
+    border-left-color: #5a6a7a;
+  }
+  .body-content :global(.schicht--werkstatt)::before {
+    content: '\2692 Werkstatt';
+    display: block;
+    font-family: var(--font-system);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #5a6a7a;
+    margin-bottom: 8px;
+  }
+  .body-content :global(.schicht--quellen) {
+    border-left-color: #7a8a9a;
+  }
+  .body-content :global(.schicht--quellen)::before {
+    content: '\203B Quellen';
+    display: block;
+    font-family: var(--font-system);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #7a8a9a;
+    margin-bottom: 8px;
+  }
+  .body-content :global(.schicht--quellen p) {
+    font-size: 13px;
+    color: var(--text-secondary);
   }
   .bezuege-section {
     margin-top: 48px;
