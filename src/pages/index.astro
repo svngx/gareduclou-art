@@ -186,6 +186,9 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
   :global(.panel-body .schicht--kern p) {
     font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-primary);
   }
+  :global(.panel-body .schicht--annotation) {
+    border-left-color: #ff0000;
+  }
   :global(.panel-body .schicht--annotation)::before {
     content: 'Annotation'; display: block;
     font-family: var(--font-inhalt); font-size: 11px;

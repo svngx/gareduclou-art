@@ -107,10 +107,10 @@
         ctx.beginPath();
         ctx.moveTo(px[n.id], py[n.id]);
         ctx.lineTo(px[ci], py[ci]);
-        ctx.strokeStyle = act ? COL[n.register] : "#404040";
-        ctx.globalAlpha = act ? 0.6 : 0.4;
+        ctx.strokeStyle = act ? COL[n.register] : "#666666";
+        ctx.globalAlpha = act ? 0.7 : 1;
         ctx.lineWidth = act ? 1.5 : 0.5;
-        if (!act) ctx.setLineDash([4, 4]);
+        if (!act) ctx.setLineDash([2, 6]);
         ctx.stroke();
         ctx.restore();
       }
