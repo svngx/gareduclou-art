@@ -5,7 +5,7 @@
   var K = window.__GDC_KNOTEN__ || [];
   if (!K.length) return;
 
-  var COL = { spurweite: "#6b8f71", passage: "#8a7f65", ankunft: "#8f6b6b" };
+  var COL = { spurweite: "#ff0000", passage: "#39b34a", ankunft: "#afafaf" };
   var RL = { spurweite: "spur||weite", passage: "/passage/", ankunft: "an//kunft" };
 
   // Lookup
@@ -59,7 +59,7 @@
   }
 
   function phys() {
-    var aw = activeId ? W - 400 : W;
+    var aw = activeId ? W - 363 : W;
     for (var i = 0; i < K.length; i++) {
       var n = K[i], fx = 0, fy = 0;
       for (var j = 0; j < K.length; j++) {
@@ -84,7 +84,7 @@
     for (var i = 0; i < K.length; i++) {
       px[K[i].id] += vx[K[i].id];
       py[K[i].id] += vy[K[i].id];
-      px[K[i].id] = Math.max(80, Math.min((activeId ? W - 480 : W - 80), px[K[i].id]));
+      px[K[i].id] = Math.max(80, Math.min((activeId ? W - 443 : W - 80), px[K[i].id]));
       py[K[i].id] = Math.max(70, Math.min(H - 60, py[K[i].id]));
     }
   }
@@ -107,7 +107,7 @@
         ctx.beginPath();
         ctx.moveTo(px[n.id], py[n.id]);
         ctx.lineTo(px[ci], py[ci]);
-        ctx.strokeStyle = act ? COL[n.register] : "#333";
+        ctx.strokeStyle = act ? COL[n.register] : "#404040";
         ctx.globalAlpha = act ? 0.45 : 0.12;
         ctx.lineWidth = act ? 1.5 : 0.5;
         if (!act) ctx.setLineDash([4, 4]);
@@ -133,7 +133,7 @@
 
       ctx.beginPath();
       ctx.arc(px[n.id], py[n.id], rr, 0, Math.PI * 2);
-      ctx.fillStyle = isA ? col : "#141414";
+      ctx.fillStyle = isA ? col : "#000000";
       ctx.fill();
       ctx.strokeStyle = col;
       ctx.lineWidth = isA ? 2.5 : isH ? 2 : 1;
@@ -143,7 +143,7 @@
         var lb = lang === "en" ? (n.en || n.de) : n.de;
         if (lb.length > 28) lb = lb.substring(0, 26) + "\u2026";
         ctx.font = ((isA || isH) ? "13" : "10") + "px Georgia, serif";
-        ctx.fillStyle = (isA || isH) ? "#e8e4df" : "#8a857e";
+        ctx.fillStyle = (isA || isH) ? "#ffffff" : "#afafaf";
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
         ctx.fillText(lb, px[n.id], py[n.id] - rr - 6);

@@ -1,0 +1,36 @@
+/**
+ * @license
+ * MyFonts Webfont Build ID 3867246, 2020-12-16T11:57:38-0500
+ * 
+ * The fonts listed in this notice are subject to the End User License
+ * Agreement(s) entered into by the website owner. All other parties are 
+ * explicitly restricted from using the Licensed Webfonts(s).
+ * 
+ * You may obtain a valid license at the URLs below.
+ * 
+ * Webfont: SNV Regular (D) by URW Type Foundry
+ * URL: https://www.myfonts.com/collections/urw-foundry
+
+ * Webfont: SNV Extra Condensed (D) by URW Type Foundry
+ * URL: https://www.myfonts.com/collections/urw-foundry
+
+ * Webfont: SNV Regular Condensed (D) by URW Type Foundry
+ * URL: https://www.myfonts.com/collections/urw-foundry
+ 
+ * © 2026 MyFonts Inc. */
+
+
+  
+@font-face {
+  font-family: "SNVExtraCondensed(D)";
+  src: url('webFonts/SNVExtraCondensedD/font.woff2') format('woff2'), url('webFonts/SNVExtraCondensedD/font.woff') format('woff');
+}
+@font-face {
+  font-family: "SNVRegularCondensed(D)";
+  src: url('webFonts/SNVRegularCondensedD/font.woff2') format('woff2'), url('webFonts/SNVRegularCondensedD/font.woff') format('woff');
+}
+@font-face {
+  font-family: "SNVRegular(D)";
+  src: url('webFonts/SNVRegularD/font.woff2') format('woff2'), url('webFonts/SNVRegularD/font.woff') format('woff');
+}
+

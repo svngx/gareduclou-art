@@ -18,9 +18,9 @@ const knoten = alleStuecke.map(s => ({
   schichten: s.data.schichten,
 }));
 
-// Registerfarben und -namen
+// Registerfarben und -namen (Figma-Tokens)
 const COL: Record<string, string> = {
-  spurweite: '#6b8f71', passage: '#8a7f65', ankunft: '#8f6b6b'
+  spurweite: '#ff0000', passage: '#39b34a', ankunft: '#afafaf'
 };
 const RL: Record<string, string> = {
   spurweite: 'spur||weite', passage: '/passage/', ankunft: 'an//kunft'
@@ -60,10 +60,10 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
       <span class="sub">Inter-Esse</span>
     </div>
     <div class="hdr-right">
-      <span class="leg"><span class="ld" style="background:#6b8f71"></span> spur||weite</span>
-      <span class="leg"><span class="ld" style="background:#8a7f65"></span> /passage/</span>
-      <span class="leg"><span class="ld" style="background:#8f6b6b"></span> an//kunft</span>
-      <button class="btn" id="langBtn">DE → EN</button>
+      <span class="leg"><span class="ld" style="background:#ff0000"></span> spur||weite</span>
+      <span class="leg"><span class="ld" style="background:#39b34a"></span> /passage/</span>
+      <span class="leg"><span class="ld" style="background:#afafaf"></span> an//kunft</span>
+      <span class="lang" id="langBtn">DE | EN</span>
     </div>
   </div>
 
@@ -129,60 +129,59 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
 </Base>
 
 <style>
+  /* ── Header — Figma: Separator bei y=49, Logo links, Legende+Lang rechts ── */
   #header {
-    position: fixed; top: 0; left: 0; right: 0; height: 44px; z-index: 20;
+    position: fixed; top: 0; left: 0; right: 0; height: 49px; z-index: 20;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 16px; border-bottom: 1px solid #2a2a2a;
-    background: rgba(10,10,10,0.95);
+    padding: 0 19px; border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.95);
   }
   .logo-area { display: flex; align-items: center; }
-  .logo { font-family: monospace; font-size: 13px; color: #c4b89a; }
-  .sub { font-family: monospace; font-size: 10px; color: #5a5651; margin-left: 10px; }
+  .logo { font-family: var(--font-titel); font-size: 13px; color: var(--text-primary); }
+  .sub { font-family: var(--font-titel); font-size: 10px; color: var(--text-secondary); margin-left: 10px; }
   .hdr-right { display: flex; align-items: center; gap: 12px; }
-  .leg { display: flex; align-items: center; gap: 4px; font-family: monospace; font-size: 10px; color: #5a5651; }
-  .ld { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-  .btn {
-    background: transparent; border: 1px solid #2a2a2a; color: #8a857e;
-    padding: 2px 8px; border-radius: 3px; cursor: pointer;
-    font-family: monospace; font-size: 11px;
+  .leg { display: flex; align-items: center; gap: 4px; font-family: var(--font-label); font-size: 10px; color: var(--text-secondary); }
+  .ld { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
+  .lang {
+    font-family: var(--font-titel); font-size: 11px; color: var(--text-primary);
+    cursor: pointer;
   }
-  .btn:hover { border-color: #555; color: #e8e4df; }
   canvas { display: block; position: fixed; top: 0; left: 0; }
   #hint {
     position: fixed; bottom: 24px; left: 0; right: 0; text-align: center;
-    font-family: monospace; font-size: 11px; color: #5a5651;
+    font-family: var(--font-inhalt); font-size: 11px; color: var(--text-secondary);
     z-index: 5; pointer-events: none;
   }
 
-  /* Panel — wie im Prototyp */
+  /* ── Panel — Figma state:klick: 363px Text-Frame bei x=1077 ── */
   #panel {
-    position: fixed; right: 0; top: 0; bottom: 0; width: 400px;
-    background: #111; border-left: 1px solid #2a2a2a;
-    overflow-y: auto; padding: 52px 20px 20px 20px; z-index: 15; display: none;
+    position: fixed; right: 0; top: 0; bottom: 0; width: 363px;
+    background: var(--bg); border-left: 1px solid var(--border);
+    overflow-y: auto; padding: 56px 14px 20px 14px; z-index: 15; display: none;
   }
   #panel.open { display: block; }
   #cb {
     position: absolute; top: 10px; right: 10px; background: transparent;
-    border: none; color: #5a5651; cursor: pointer;
-    font-size: 18px; font-family: monospace; padding: 4px 8px;
+    border: none; color: var(--text-secondary); cursor: pointer;
+    font-size: 18px; font-family: var(--font-titel); padding: 4px 8px;
   }
-  #cb:hover { color: #e8e4df; }
+  #cb:hover { color: var(--text-primary); }
 
-  /* Panel-Inhalt */
-  .rb { font-family: monospace; font-size: 11px; margin-bottom: 4px; letter-spacing: 0.05em; }
-  :global(#panel h2) { font-family: Georgia, serif; font-size: 19px; font-weight: 400; margin: 0 0 16px 0; line-height: 1.3; }
+  /* ── Panel-Inhalt — Register-Overline, Titel, Selektoren ── */
+  .rb { font-family: var(--font-titel); font-size: 10px; margin-bottom: 4px; letter-spacing: 0.05em; }
+  :global(#panel h2) { font-family: var(--font-titel); font-size: 20px; font-weight: 400; margin: 0 0 16px 0; line-height: 1.3; color: var(--text-primary); }
   .lt { display: flex; gap: 5px; margin-bottom: 16px; flex-wrap: wrap; }
   .lb {
-    background: transparent; border: 1px solid #2a2a2a; color: #8a857e;
-    padding: 3px 8px; border-radius: 3px; cursor: pointer;
-    font-family: monospace; font-size: 11px;
+    background: transparent; border: none; color: var(--text-secondary);
+    padding: 3px 8px; cursor: pointer;
+    font-family: var(--font-inhalt); font-size: 11px;
   }
-  .lb.on { background: #1a1a1a; border-color: #555; color: #e8e4df; }
+  .lb.on { color: var(--text-primary); }
   .lb.off { opacity: 0.3; cursor: default; }
 
-  /* Schicht-Blöcke im Panel */
+  /* ── Schicht-Blöcke — Copy_line links, Kern-Text rechts ── */
   :global(.panel-body .schicht) {
-    border-left: 2px solid #444;
+    border-left: 2px solid var(--border-subtle);
     padding-left: 12px;
     margin-bottom: 14px;
   }
@@ -190,46 +189,46 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
     border-left-color: inherit;
   }
   :global(.panel-body .schicht--kern p) {
-    font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #e8e4df;
+    font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-primary);
   }
-  :global(.panel-body .schicht--annotation) { border-left-color: #8a7f65; }
+  :global(.panel-body .schicht--annotation) { border-left-color: var(--passage); }
   :global(.panel-body .schicht--annotation)::before {
-    content: '\00B6 Annotation'; display: block;
-    font-family: monospace; font-size: 10px; text-transform: uppercase;
-    letter-spacing: 0.06em; color: #8a7f65; margin-bottom: 6px;
+    content: 'Annotation'; display: block;
+    font-family: var(--font-inhalt); font-size: 11px;
+    color: var(--text-secondary); margin-bottom: 6px;
   }
   :global(.panel-body .schicht--annotation p) {
-    font-family: Georgia, serif; font-size: 13px; line-height: 1.6; color: #8a857e;
+    font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-secondary);
   }
-  :global(.panel-body .schicht--werkstatt) { border-left-color: #5a6a7a; }
+  :global(.panel-body .schicht--werkstatt) { border-left-color: var(--border-subtle); }
   :global(.panel-body .schicht--werkstatt)::before {
-    content: '\2692 Werkstatt'; display: block;
-    font-family: monospace; font-size: 10px; text-transform: uppercase;
-    letter-spacing: 0.06em; color: #5a6a7a; margin-bottom: 6px;
+    content: 'Werkstatt'; display: block;
+    font-family: var(--font-inhalt); font-size: 11px;
+    color: var(--text-secondary); margin-bottom: 6px;
   }
   :global(.panel-body .schicht--werkstatt p) {
-    font-family: Georgia, serif; font-size: 13px; line-height: 1.6; color: #8a857e;
+    font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-secondary);
   }
-  :global(.panel-body .schicht--quellen) { border-left-color: #7a8a9a; }
+  :global(.panel-body .schicht--quellen) { border-left-color: var(--border); }
   :global(.panel-body .schicht--quellen)::before {
-    content: '\203B Quellen'; display: block;
-    font-family: monospace; font-size: 10px; text-transform: uppercase;
-    letter-spacing: 0.06em; color: #7a8a9a; margin-bottom: 6px;
+    content: 'Quellen'; display: block;
+    font-family: var(--font-inhalt); font-size: 11px;
+    color: var(--text-secondary); margin-bottom: 6px;
   }
   :global(.panel-body .schicht--quellen p) {
-    font-family: Georgia, serif; font-size: 13px; line-height: 1.6; color: #8a857e;
+    font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-secondary);
   }
 
-  /* Bezüge */
-  .bz { margin-top: 20px; border-top: 1px solid #2a2a2a; padding-top: 12px; }
-  .bzt { font-family: monospace; font-size: 10px; color: #5a5651; margin-bottom: 8px; text-transform: uppercase; }
+  /* ── Bezüge — Dot + Titel + Register-Label ── */
+  .bz { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 12px; }
+  .bzt { font-family: var(--font-inhalt); font-size: 10px; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; }
   .bzb {
-    background: transparent; border: 1px solid #2a2a2a; border-radius: 3px;
+    background: transparent; border: none;
     padding: 5px 8px; cursor: pointer; text-align: left;
     display: flex; align-items: center; gap: 6px; width: 100%;
-    margin-bottom: 4px; color: #8a857e; font-family: Georgia, serif; font-size: 12px;
+    margin-bottom: 4px; color: var(--text-secondary); font-family: var(--font-inhalt); font-size: 11px;
   }
-  .bzb:hover { border-color: #666; }
-  .bd { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .br { font-family: monospace; font-size: 9px; color: #5a5651; margin-left: auto; }
+  .bzb:hover { color: var(--text-primary); }
+  .bd { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .br { font-family: var(--font-label); font-size: 10px; color: var(--text-secondary); margin-left: auto; }
 </style>
