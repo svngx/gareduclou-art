@@ -19,7 +19,7 @@
 
   // Basisradien pro Register (Figma: spur=75, passage=50, ankunft=35 → halbe Werte)
   var BASE_R = { spurweite: 37, passage: 25, ankunft: 17 };
-  var HOVER_R = { spurweite: 50, passage: 25, ankunft: 17 };
+  var HOVER_R = { spurweite: 50, passage: 35, ankunft: 25 };
 
   // Lookup
   var KM = {};
@@ -63,13 +63,16 @@
   function place() {
     for (var i = 0; i < K.length; i++) {
       var a = (i / K.length) * Math.PI * 2;
-      var rad = Math.min(W, H) * 0.25;
-      px[K[i].id] = W / 2 + Math.cos(a) * rad + (Math.random() - 0.5) * 80;
-      py[K[i].id] = H / 2 + Math.sin(a) * rad + (Math.random() - 0.5) * 80;
+      var rad = Math.min(W, H) * 0.35;
+      px[K[i].id] = W / 2 + Math.cos(a) * rad + (Math.random() - 0.5) * 60;
+      py[K[i].id] = H / 2 + Math.sin(a) * rad + (Math.random() - 0.5) * 60;
       vx[K[i].id] = 0;
       vy[K[i].id] = 0;
     }
   }
+
+  // Mindestabstand für Label-Freiheit (Radius + Labelraum)
+  var MIN_DIST = 120;
 
   function phys() {
     var aw = activeId ? W - 363 : W;
@@ -80,17 +83,22 @@
         var dx = px[n.id] - px[K[j].id];
         var dy = py[n.id] - py[K[j].id];
         var d = Math.sqrt(dx * dx + dy * dy) || 1;
-        fx += (dx / d) * 5000 / (d * d);
-        fy += (dy / d) * 5000 / (d * d);
+        // Starke Abstoßung — skaliert mit Knotenzahl
+        var repulsion = 18000 / (d * d);
+        // Zusätzlicher Schub wenn unter Mindestabstand
+        if (d < MIN_DIST) repulsion += (MIN_DIST - d) * 0.5;
+        fx += (dx / d) * repulsion;
+        fy += (dy / d) * repulsion;
       }
       for (var k = 0; k < n.bezuege.length; k++) {
         var ci = n.bezuege[k];
         if (!px[ci]) continue;
-        fx += (px[ci] - px[n.id]) * 0.006;
-        fy += (py[ci] - py[n.id]) * 0.006;
+        // Schwächere Anziehung — lässt mehr Raum
+        fx += (px[ci] - px[n.id]) * 0.003;
+        fy += (py[ci] - py[n.id]) * 0.003;
       }
-      fx += (aw / 2 - px[n.id]) * 0.004;
-      fy += (H / 2 - py[n.id]) * 0.004;
+      fx += (aw / 2 - px[n.id]) * 0.003;
+      fy += (H / 2 - py[n.id]) * 0.003;
       vx[n.id] = (vx[n.id] + fx) * 0.8;
       vy[n.id] = (vy[n.id] + fy) * 0.8;
     }

@@ -107,25 +107,23 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
             </div>
             <div class="sep"></div>
 
-            {/* Scrollbare Schicht-Blöcke mit Copy_line */}
+            {/* Scrollbarer Bereich: Schicht-Blöcke + Bezüge fließen zusammen */}
             <div class="panel-body" style={`color:${col}`}>
               <ContentComp />
+
+              {bez.length > 0 && (
+                <div class="bz">
+                  <div class="bz-sep"></div>
+                  {bez.map(b => (
+                    <button class="bzb" data-goto={b.data.pfad}>
+                      <span class="bd" style={`background:${COL[b.data.register]}`}></span>
+                      <span>{b.data.title.de}</span>
+                      <span class="br">{RL[b.data.register]}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-
-            {/* Separator vor Bezüge */}
-            {bez.length > 0 && <div class="sep"></div>}
-
-            {bez.length > 0 && (
-              <div class="bz">
-                {bez.map(b => (
-                  <button class="bzb" data-goto={b.data.pfad}>
-                    <span class="bd" style={`background:${COL[b.data.register]}`}></span>
-                    <span>{b.data.title.de}</span>
-                    <span class="br">{RL[b.data.register]}</span>
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         );
       })}
@@ -227,28 +225,26 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
   .lb.on { color: var(--text-primary); }
   .lb.off { opacity: 0.3; cursor: default; }
 
-  /* ── Schicht-Blöcke — scrollbarer Bereich ── */
+  /* ── Schicht-Blöcke — ganzer panel-body scrollt ── */
   :global(.panel-body) {
     flex: 1 1 0;
     overflow-y: auto;
     overflow-x: hidden;
     min-height: 0;
     padding: 16px 14px 20px 14px;
-  }
-
-  /* Copy_line links = 2px Linie */
-  :global(.panel-body .schicht) {
-    border-left: 2px solid currentColor;
-    padding-left: 12px;
-    margin-bottom: 0;
-    max-height: 50vh;
-    overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--border-subtle) transparent;
   }
-  :global(.panel-body .schicht::-webkit-scrollbar) { width: 3px; }
-  :global(.panel-body .schicht::-webkit-scrollbar-thumb) { background: var(--border-subtle); border-radius: 2px; }
-  :global(.panel-body .schicht::-webkit-scrollbar-track) { background: transparent; }
+  :global(.panel-body::-webkit-scrollbar) { width: 3px; }
+  :global(.panel-body::-webkit-scrollbar-thumb) { background: var(--border-subtle); border-radius: 2px; }
+  :global(.panel-body::-webkit-scrollbar-track) { background: transparent; }
+
+  /* Copy_line links = 2px Linie, 20px Abstand nach jedem Block */
+  :global(.panel-body .schicht) {
+    border-left: 2px solid currentColor;
+    padding-left: 12px;
+    padding-bottom: 20px;
+  }
 
   /* Kern — Copy_line in Registerfarbe (via inherit/currentColor) */
   :global(.panel-body .schicht--kern) {
@@ -282,15 +278,19 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
     font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-primary);
   }
 
-  /* Separator zwischen Schicht-Blöcken */
+  /* Trennlinie zwischen Schicht-Blöcken: 1px Linie, 20px Abstand darüber ist durch padding-bottom des vorherigen Blocks */
   :global(.panel-body .schicht + .schicht) {
-    margin-top: 0;
     padding-top: 16px;
     border-top: 1px solid var(--border);
   }
 
-  /* ── Bezüge — Dot + Titel + Register-Label ── */
-  .bz { padding: 12px 14px 20px 14px; flex-shrink: 0; }
+  /* ── Bezüge — fließen nach dem letzten Schicht-Block ── */
+  :global(.panel-body .bz) { padding: 0 0 20px 0; }
+  :global(.bz-sep) {
+    width: 100%; height: 1px;
+    background: var(--border);
+    margin-bottom: 12px;
+  }
   .bzb {
     background: transparent; border: none;
     padding: 5px 8px; cursor: pointer; text-align: left;
