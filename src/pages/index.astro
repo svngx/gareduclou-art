@@ -25,11 +25,11 @@ const COL: Record<string, string> = {
 const RL: Record<string, string> = {
   spurweite: 'spur||weite', passage: '/passage/', ankunft: 'an//kunft'
 };
-const LM: Record<string, {de: string, en: string, icon: string}> = {
-  kern: {de:'Kern', en:'Core', icon:'◉'},
-  annotation: {de:'Annotation', en:'Annotation', icon:'¶'},
-  werkstatt: {de:'Werkstatt', en:'Workshop', icon:'⚒'},
-  quellen: {de:'Quellen', en:'Sources', icon:'※'},
+const LM: Record<string, {de: string, en: string}> = {
+  kern: {de:'Kern', en:'Core'},
+  annotation: {de:'Annotation', en:'Annotation'},
+  werkstatt: {de:'Werkstatt', en:'Workshop'},
+  quellen: {de:'Quellen', en:'Sources'},
 };
 
 // Bezüge bidirektional auflösen
@@ -56,8 +56,7 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
 <Base title="Gare du Clou">
   <div id="header">
     <div class="logo-area">
-      <span class="logo">Gare du Clou</span>
-      <span class="sub">Inter-Esse</span>
+      <img src="/logo-gdc.png" alt="Gare du Clou" class="logo-img" />
     </div>
     <div class="hdr-right">
       <span class="leg"><span class="ld" style="background:#ff0000"></span> spur||weite</span>
@@ -91,13 +90,13 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
                 const cls = !has && lid !== 'kern' ? 'lb off' : 'lb';
                 return (
                   <button class={cls} data-layer={lid} data-for={pfad}>
-                    {LM[lid].icon} {LM[lid].de}
+                    {LM[lid].de}
                   </button>
                 );
               })}
             </div>
 
-            <div class="panel-body">
+            <div class="panel-body" style={`color:${col}`}>
               <ContentComp />
             </div>
 
@@ -137,8 +136,7 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
     background: rgba(0,0,0,0.95);
   }
   .logo-area { display: flex; align-items: center; }
-  .logo { font-family: var(--font-titel); font-size: 13px; color: var(--text-primary); }
-  .sub { font-family: var(--font-titel); font-size: 10px; color: var(--text-secondary); margin-left: 10px; }
+  .logo-img { height: 45px; width: 108px; object-fit: contain; }
   .hdr-right { display: flex; align-items: center; gap: 12px; }
   .leg { display: flex; align-items: center; gap: 4px; font-family: var(--font-label); font-size: 10px; color: var(--text-secondary); }
   .ld { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
@@ -179,19 +177,15 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
   .lb.on { color: var(--text-primary); }
   .lb.off { opacity: 0.3; cursor: default; }
 
-  /* ── Schicht-Blöcke — Copy_line links, Kern-Text rechts ── */
+  /* ── Schicht-Blöcke — Copy_line links = Register-Farbe, via inherit ── */
   :global(.panel-body .schicht) {
-    border-left: 2px solid var(--border-subtle);
+    border-left: 2px solid currentColor;
     padding-left: 12px;
     margin-bottom: 14px;
-  }
-  :global(.panel-body .schicht--kern) {
-    border-left-color: inherit;
   }
   :global(.panel-body .schicht--kern p) {
     font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-primary);
   }
-  :global(.panel-body .schicht--annotation) { border-left-color: var(--passage); }
   :global(.panel-body .schicht--annotation)::before {
     content: 'Annotation'; display: block;
     font-family: var(--font-inhalt); font-size: 11px;
@@ -200,7 +194,6 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
   :global(.panel-body .schicht--annotation p) {
     font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-secondary);
   }
-  :global(.panel-body .schicht--werkstatt) { border-left-color: var(--border-subtle); }
   :global(.panel-body .schicht--werkstatt)::before {
     content: 'Werkstatt'; display: block;
     font-family: var(--font-inhalt); font-size: 11px;
@@ -209,7 +202,6 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
   :global(.panel-body .schicht--werkstatt p) {
     font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-secondary);
   }
-  :global(.panel-body .schicht--quellen) { border-left-color: var(--border); }
   :global(.panel-body .schicht--quellen)::before {
     content: 'Quellen'; display: block;
     font-family: var(--font-inhalt); font-size: 11px;

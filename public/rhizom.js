@@ -108,7 +108,7 @@
         ctx.moveTo(px[n.id], py[n.id]);
         ctx.lineTo(px[ci], py[ci]);
         ctx.strokeStyle = act ? COL[n.register] : "#404040";
-        ctx.globalAlpha = act ? 0.45 : 0.12;
+        ctx.globalAlpha = act ? 0.6 : 0.4;
         ctx.lineWidth = act ? 1.5 : 0.5;
         if (!act) ctx.setLineDash([4, 4]);
         ctx.stroke();
@@ -142,7 +142,7 @@
       if (!activeId && !hoverId || isA || isH || isC) {
         var lb = lang === "en" ? (n.en || n.de) : n.de;
         if (lb.length > 28) lb = lb.substring(0, 26) + "\u2026";
-        ctx.font = ((isA || isH) ? "13" : "10") + "px Georgia, serif";
+        ctx.font = ((isA || isH) ? "13" : "11") + "px 'Snv Cond D', Georgia, serif";
         ctx.fillStyle = (isA || isH) ? "#ffffff" : "#afafaf";
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
