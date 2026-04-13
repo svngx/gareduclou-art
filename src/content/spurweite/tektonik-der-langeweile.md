@@ -7,7 +7,8 @@ title:
   en: Tectonics of Boredom
 bezuege:
   - durchgang-und-schwelle
-  - aufprall-einer-these
+  - intensitaeten-ohne-subjekt
+  - kein-ursprung-kein-ziel
 schichten:
   - kern
   - annotation

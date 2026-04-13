@@ -6,8 +6,9 @@ title:
   de: Aufprall einer These
   en: Impact of a Thesis
 bezuege:
-  - tektonik-der-langeweile
-  - durchgang-und-schwelle
+  - was-wird-aus-der-these
+  - figuren-des-umschlags
+  - mannigfaltigkeit-der-form
 schichten:
   - kern
   - quellen

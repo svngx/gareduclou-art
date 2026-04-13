@@ -7,7 +7,8 @@ title:
   en: Passage and Threshold
 bezuege:
   - tektonik-der-langeweile
-  - aufprall-einer-these
+  - das-unwissen-als-methode
+  - figuren-des-umschlags
 schichten:
   - kern
   - werkstatt
