@@ -239,11 +239,14 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
   :global(.panel-body::-webkit-scrollbar-thumb) { background: var(--border-subtle); border-radius: 2px; }
   :global(.panel-body::-webkit-scrollbar-track) { background: transparent; }
 
-  /* Copy_line links = 2px Linie, 20px Abstand nach jedem Block */
+  /* Copy_line links = 2px Linie, endet mit dem Text */
   :global(.panel-body .schicht) {
     border-left: 2px solid currentColor;
     padding-left: 12px;
-    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+  :global(.panel-body .schicht p:last-child) {
+    margin-bottom: 0;
   }
 
   /* Kern — Copy_line in Registerfarbe (via inherit/currentColor) */
@@ -278,10 +281,11 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
     font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-primary);
   }
 
-  /* Trennlinie zwischen Schicht-Blöcken: 1px Linie, 20px Abstand darüber ist durch padding-bottom des vorherigen Blocks */
+  /* Trennlinie zwischen Schicht-Blöcken */
   :global(.panel-body .schicht + .schicht) {
     padding-top: 16px;
     border-top: 1px solid var(--border);
+    margin-top: 0;
   }
 
   /* ── Bezüge — fließen nach dem letzten Schicht-Block ── */
