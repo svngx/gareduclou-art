@@ -1,12 +1,25 @@
 // ── Gare du Clou · Rhizom-Engine ──
 // Panel-Modus: Klick öffnet Inhalt rechts, Rhizom bleibt sichtbar.
+// Farben + 3-Ring-Kreise: Figma Stand 13.04.2026
 
 (function () {
   var K = window.__GDC_KNOTEN__ || [];
   if (!K.length) return;
 
-  var COL = { spurweite: "#ff0000", passage: "#39b34a", ankunft: "#afafaf" };
+  // Registerfarben (Figma-Tokens 13.04.2026)
+  var COL = { spurweite: "#ff0000", passage: "#002395", ankunft: "#ffffff" };
   var RL = { spurweite: "spur||weite", passage: "/passage/", ankunft: "an//kunft" };
+
+  // 3-Ring-Reihenfolge pro Register (außen → mitte → innen)
+  var RINGS = {
+    spurweite: ["#ff0000", "#ffffff", "#002395"],
+    passage:   ["#002395", "#ffffff", "#ff0000"],
+    ankunft:   ["#ffffff", "#ff0000", "#002395"]
+  };
+
+  // Basisradien pro Register (Figma: spur=75, passage=50, ankunft=35 → halbe Werte)
+  var BASE_R = { spurweite: 37, passage: 25, ankunft: 17 };
+  var HOVER_R = { spurweite: 50, passage: 25, ankunft: 17 };
 
   // Lookup
   var KM = {};
@@ -95,7 +108,7 @@
     var cs = {};
     if (an) for (var i = 0; i < an.bezuege.length; i++) cs[an.bezuege[i]] = true;
 
-    // Kanten
+    // Kanten (gestrichelt, #404040)
     for (var i = 0; i < K.length; i++) {
       var n = K[i];
       for (var k = 0; k < n.bezuege.length; k++) {
@@ -107,7 +120,7 @@
         ctx.beginPath();
         ctx.moveTo(px[n.id], py[n.id]);
         ctx.lineTo(px[ci], py[ci]);
-        ctx.strokeStyle = act ? COL[n.register] : "#666666";
+        ctx.strokeStyle = act ? COL[n.register] : "#404040";
         ctx.globalAlpha = act ? 0.7 : 1;
         ctx.lineWidth = act ? 1.5 : 0.5;
         if (!act) ctx.setLineDash([2, 6]);
@@ -116,37 +129,60 @@
       }
     }
 
-    // Knoten
+    // Knoten — 3 konzentrische Ringe
     for (var i = 0; i < K.length; i++) {
       var n = K[i];
       var isA = activeId === n.id;
       var isH = hoverId === n.id;
       var isC = !!cs[n.id];
-      var br = n.register === "ankunft" ? 6 : n.register === "passage" ? 9 : 11;
-      var rr = (isA || isH) ? br + 5 : br;
-      var col = COL[n.register];
+      var big = isA || isH;
+      var br = big ? HOVER_R[n.register] : BASE_R[n.register];
+      var rings = RINGS[n.register];
 
       ctx.save();
       if (activeId) ctx.globalAlpha = isA ? 1 : isC ? 0.75 : 0.15;
       else if (hoverId) ctx.globalAlpha = isH ? 1 : isC ? 0.75 : 0.15;
       else ctx.globalAlpha = 0.7;
 
+      // Ring 1 (außen) — bei active: gefüllt
+      var r1 = br;
       ctx.beginPath();
-      ctx.arc(px[n.id], py[n.id], rr, 0, Math.PI * 2);
-      ctx.fillStyle = isA ? col : "#000000";
+      ctx.arc(px[n.id], py[n.id], r1, 0, Math.PI * 2);
+      ctx.fillStyle = isA ? rings[0] : "#000000";
       ctx.fill();
-      ctx.strokeStyle = col;
-      ctx.lineWidth = isA ? 2.5 : isH ? 2 : 1;
+      ctx.strokeStyle = rings[0];
+      ctx.lineWidth = isA ? 2.5 : big ? 2 : 2;
       ctx.stroke();
 
+      // Ring 2 (mitte)
+      var r2 = r1 - (big ? 3 : 2);
+      if (r2 > 2) {
+        ctx.beginPath();
+        ctx.arc(px[n.id], py[n.id], r2, 0, Math.PI * 2);
+        ctx.strokeStyle = rings[1];
+        ctx.lineWidth = big ? 2 : 1;
+        ctx.stroke();
+      }
+
+      // Ring 3 (innen)
+      var r3 = r2 - (big ? 3 : 2);
+      if (r3 > 2) {
+        ctx.beginPath();
+        ctx.arc(px[n.id], py[n.id], r3, 0, Math.PI * 2);
+        ctx.strokeStyle = rings[2];
+        ctx.lineWidth = big ? 2 : 1;
+        ctx.stroke();
+      }
+
+      // Label
       if (!activeId && !hoverId || isA || isH || isC) {
         var lb = lang === "en" ? (n.en || n.de) : n.de;
         if (lb.length > 28) lb = lb.substring(0, 26) + "\u2026";
-        ctx.font = ((isA || isH) ? "13" : "11") + "px 'Snv Cond D', Georgia, serif";
+        ctx.font = (big ? "13" : "11") + "px 'Snv Cond D', Georgia, serif";
         ctx.fillStyle = (isA || isH) ? "#ffffff" : "#afafaf";
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
-        ctx.fillText(lb, px[n.id], py[n.id] - rr - 6);
+        ctx.fillText(lb, px[n.id], py[n.id] - r1 - 6);
       }
       ctx.restore();
     }
@@ -169,7 +205,7 @@
 
   // ── Hit-Test ──
   function hit(mx, my) {
-    var best = null, bd = 30;
+    var best = null, bd = 55;
     for (var i = 0; i < K.length; i++) {
       var dx = mx - px[K[i].id], dy = my - py[K[i].id];
       var d = Math.sqrt(dx * dx + dy * dy);
@@ -183,10 +219,10 @@
     activeId = id;
     activeLayers = { kern: true };
 
-    // Alle Panel-Inhalte verstecken, aktives zeigen
+    // Alle Panel-Inhalte verstecken, aktives zeigen (flex statt block)
     panels.forEach(function (p) { p.style.display = "none"; });
     var target = document.querySelector('[data-panel="' + id + '"]');
-    if (target) target.style.display = "block";
+    if (target) target.style.display = "flex";
 
     panel.classList.add("open");
 
@@ -218,6 +254,7 @@
   function closePanel() {
     activeId = null;
     panel.classList.remove("open");
+    panels.forEach(function (p) { p.style.display = "none"; });
     frame = 0;
     loop();
   }

@@ -18,9 +18,16 @@ const knoten = alleStuecke.map(s => ({
   schichten: s.data.schichten,
 }));
 
-// Registerfarben und -namen (Figma-Tokens)
+// Registerfarben und -namen (Figma-Tokens, Stand 13.04.2026)
 const COL: Record<string, string> = {
-  spurweite: '#ff0000', passage: '#39b34a', ankunft: '#afafaf'
+  spurweite: '#ff0000', passage: '#002395', ankunft: '#ffffff'
+};
+// Schicht-Linienfarben (Copy_line)
+const LCOL: Record<string, string> = {
+  kern: '', // wird pro Register gesetzt
+  annotation: '#FE6901', // Orange — Figma-Variable
+  werkstatt: '#afafaf',
+  quellen: '#afafaf',
 };
 const RL: Record<string, string> = {
   spurweite: 'spur||weite', passage: '/passage/', ankunft: 'an//kunft'
@@ -60,8 +67,8 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
     </div>
     <div class="hdr-right">
       <span class="leg"><span class="ld" style="background:#ff0000"></span> spur||weite</span>
-      <span class="leg"><span class="ld" style="background:#39b34a"></span> /passage/</span>
-      <span class="leg"><span class="ld" style="background:#afafaf"></span> an//kunft</span>
+      <span class="leg"><span class="ld" style="background:#002395"></span> /passage/</span>
+      <span class="leg"><span class="ld" style="background:#ffffff"></span> an//kunft</span>
       <span class="lang" id="langBtn">DE | EN</span>
     </div>
   </div>
@@ -81,9 +88,12 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
         const ContentComp = contentMap[pfad];
         return (
           <div class="panel-stueck" data-panel={pfad} style="display:none">
+            {/* Register-Overline + Titel */}
             <div class="rb" style={`color:${col}`}>{rl}</div>
             <h2 class="panel-title">{s.data.title.de}</h2>
 
+            {/* Separator → Selector → Separator (Figma y=69..98) */}
+            <div class="sep"></div>
             <div class="lt">
               {['kern','annotation','werkstatt','quellen'].map(lid => {
                 const has = s.data.schichten.includes(lid as any);
@@ -95,14 +105,18 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
                 );
               })}
             </div>
+            <div class="sep"></div>
 
+            {/* Scrollbare Schicht-Blöcke mit Copy_line */}
             <div class="panel-body" style={`color:${col}`}>
               <ContentComp />
             </div>
 
+            {/* Separator vor Bezüge */}
+            {bez.length > 0 && <div class="sep"></div>}
+
             {bez.length > 0 && (
               <div class="bz">
-                <div class="bzt">Bezüge</div>
                 {bez.map(b => (
                   <button class="bzb" data-goto={b.data.pfad}>
                     <span class="bd" style={`background:${COL[b.data.register]}`}></span>
@@ -151,72 +165,132 @@ const stueckMap = Object.fromEntries(alleStuecke.map(s => [s.data.pfad, s]));
     z-index: 5; pointer-events: none;
   }
 
-  /* ── Panel — Figma state:klick: 363px Text-Frame bei x=1077 ── */
+  /* ── Panel — Figma state:klick: Text-Frame 363×782, CLIPS ── */
   #panel {
-    position: fixed; right: 0; top: 0; bottom: 0; width: 363px;
+    position: fixed; right: 0; top: 49px; bottom: 0; width: 363px;
     background: var(--bg); border-left: 1px solid var(--border);
-    overflow-y: auto; padding: 56px 14px 20px 14px; z-index: 15; display: none;
+    overflow: hidden; z-index: 15; display: none;
+    /* Panel selbst clippt — innere Bereiche scrollen */
   }
-  #panel.open { display: block; }
+  #panel.open { display: flex; flex-direction: column; }
   #cb {
-    position: absolute; top: 10px; right: 10px; background: transparent;
+    position: absolute; top: 4px; right: 10px; background: transparent;
     border: none; color: var(--text-secondary); cursor: pointer;
-    font-size: 18px; font-family: var(--font-titel); padding: 4px 8px;
+    font-size: 18px; font-family: var(--font-titel); padding: 4px 8px; z-index: 2;
   }
   #cb:hover { color: var(--text-primary); }
+  #pc { display: contents; }
 
-  /* ── Panel-Inhalt — Register-Overline, Titel, Selektoren ── */
-  .rb { font-family: var(--font-titel); font-size: 10px; margin-bottom: 4px; letter-spacing: 0.05em; }
-  :global(#panel h2) { font-family: var(--font-titel); font-size: 20px; font-weight: 400; margin: 0 0 16px 0; line-height: 1.3; color: var(--text-primary); }
-  .lt { display: flex; gap: 5px; margin-bottom: 16px; flex-wrap: wrap; }
+  /* ── Panel-Stueck: flex column, body wächst und scrollt ── */
+  .panel-stueck {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+  .panel-stueck[style*="display:flex"], .panel-stueck.active {
+    display: flex !important;
+  }
+
+  /* ── Register-Overline + Titel ── */
+  .rb {
+    font-family: var(--font-titel); font-size: 10px; letter-spacing: 0.05em;
+    padding: 15px 14px 0 14px;
+    flex-shrink: 0;
+  }
+  :global(#panel h2) {
+    font-family: var(--font-titel); font-size: 20px; font-weight: 400;
+    margin: 4px 0 0 0; line-height: 1.3; color: var(--text-primary);
+    padding: 0 14px;
+    flex-shrink: 0;
+  }
+
+  /* ── Separator-Linie (Figma: Seperator_line, #afafaf, 1px) ── */
+  .sep {
+    width: 100%; height: 1px;
+    background: var(--border);
+    flex-shrink: 0;
+    margin: 12px 0 0 0;
+  }
+
+  /* ── Layer-Selektor (Figma: Selector_Menue) ── */
+  .lt {
+    display: flex; gap: 0; flex-wrap: wrap;
+    padding: 0; margin: 0;
+    flex-shrink: 0;
+  }
   .lb {
     background: transparent; border: none; color: var(--text-secondary);
-    padding: 3px 8px; cursor: pointer;
+    padding: 10px 10px; cursor: pointer;
     font-family: var(--font-inhalt); font-size: 11px;
   }
   .lb.on { color: var(--text-primary); }
   .lb.off { opacity: 0.3; cursor: default; }
 
-  /* ── Schicht-Blöcke — Copy_line links = Register-Farbe, via inherit ── */
+  /* ── Schicht-Blöcke — scrollbarer Bereich ── */
+  :global(.panel-body) {
+    flex: 1 1 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    padding: 16px 14px 20px 14px;
+  }
+
+  /* Copy_line links = 2px Linie */
   :global(.panel-body .schicht) {
     border-left: 2px solid currentColor;
     padding-left: 12px;
-    margin-bottom: 14px;
+    margin-bottom: 0;
+    max-height: 50vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-subtle) transparent;
+  }
+  :global(.panel-body .schicht::-webkit-scrollbar) { width: 3px; }
+  :global(.panel-body .schicht::-webkit-scrollbar-thumb) { background: var(--border-subtle); border-radius: 2px; }
+  :global(.panel-body .schicht::-webkit-scrollbar-track) { background: transparent; }
+
+  /* Kern — Copy_line in Registerfarbe (via inherit/currentColor) */
+  :global(.panel-body .schicht--kern) {
+    border-left-color: currentColor;
   }
   :global(.panel-body .schicht--kern p) {
     font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-primary);
   }
+
+  /* Annotation — Copy_line immer Orange (#FE6901) */
   :global(.panel-body .schicht--annotation) {
-    border-left-color: #FE6901;
-  }
-  :global(.panel-body .schicht--annotation)::before {
-    content: 'Annotation'; display: block;
-    font-family: var(--font-inhalt); font-size: 11px;
-    color: var(--text-secondary); margin-bottom: 6px;
+    border-left-color: var(--annotation);
   }
   :global(.panel-body .schicht--annotation p) {
-    font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-secondary);
+    font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-primary);
   }
-  :global(.panel-body .schicht--werkstatt)::before {
-    content: 'Werkstatt'; display: block;
-    font-family: var(--font-inhalt); font-size: 11px;
-    color: var(--text-secondary); margin-bottom: 6px;
+
+  /* Werkstatt — Copy_line Grey_light */
+  :global(.panel-body .schicht--werkstatt) {
+    border-left-color: var(--border);
   }
   :global(.panel-body .schicht--werkstatt p) {
-    font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-secondary);
+    font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-primary);
   }
-  :global(.panel-body .schicht--quellen)::before {
-    content: 'Quellen'; display: block;
-    font-family: var(--font-inhalt); font-size: 11px;
-    color: var(--text-secondary); margin-bottom: 6px;
+
+  /* Quellen — Copy_line Grey_light */
+  :global(.panel-body .schicht--quellen) {
+    border-left-color: var(--border);
   }
   :global(.panel-body .schicht--quellen p) {
-    font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-secondary);
+    font-family: var(--font-inhalt); font-size: 12px; line-height: 1.6; color: var(--text-primary);
+  }
+
+  /* Separator zwischen Schicht-Blöcken */
+  :global(.panel-body .schicht + .schicht) {
+    margin-top: 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
   }
 
   /* ── Bezüge — Dot + Titel + Register-Label ── */
-  .bz { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 12px; }
-  .bzt { font-family: var(--font-inhalt); font-size: 10px; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; }
+  .bz { padding: 12px 14px 20px 14px; flex-shrink: 0; }
   .bzb {
     background: transparent; border: none;
     padding: 5px 8px; cursor: pointer; text-align: left;
