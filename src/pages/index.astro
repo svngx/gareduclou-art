@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 // Alle Stücke aus allen Registern laden
 const spurweite = await getCollection('spurweite');
@@ -50,9 +50,9 @@ for (const s of alleStuecke) {
   }
 }
 
-// Alle Stücke rendern
+// Alle Stücke rendern (Astro 5 Content Layer API)
 const rendered = await Promise.all(alleStuecke.map(async (s) => {
-  const { Content } = await s.render();
+  const { Content } = await render(s);
   return { pfad: s.data.pfad, Content };
 }));
 const contentMap = Object.fromEntries(rendered.map(r => [r.pfad, r.Content]));

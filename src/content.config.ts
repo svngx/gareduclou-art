@@ -1,4 +1,5 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 const medienSchema = z.object({
   typ: z.enum(['bild', 'audio', 'video']),
@@ -26,8 +27,18 @@ const stueckSchema = z.object({
   layout: z.string().optional(),
 });
 
-const spurweite = defineCollection({ type: 'content', schema: stueckSchema });
-const passage = defineCollection({ type: 'content', schema: stueckSchema });
-const ankunft = defineCollection({ type: 'content', schema: stueckSchema });
+// Expliziter glob()-Loader pro Register — vermeidet Duplicate-ID-Warnings
+const spurweite = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: 'src/content/spurweite' }),
+  schema: stueckSchema,
+});
+const passage = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: 'src/content/passage' }),
+  schema: stueckSchema,
+});
+const ankunft = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: 'src/content/ankunft' }),
+  schema: stueckSchema,
+});
 
 export const collections = { spurweite, passage, ankunft };

@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 // Alle Stücke laden
 const spurweite = await getCollection('spurweite');
@@ -14,7 +14,7 @@ const stueck = alle.find(s => s.data.pfad === id);
 if (!stueck) return Astro.redirect('/');
 
 // Inhalt rendern
-const { Content } = await stueck.render();
+const { Content } = await render(stueck);
 
 // Bezüge auflösen (bidirektional)
 const bezugIds = new Set(stueck.data.bezuege);
